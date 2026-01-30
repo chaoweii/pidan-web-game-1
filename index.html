@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Pidan's Playground</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="sidebar">
+        <button id="mode-drag" title="Drag Mode">✋</button>
+        <span class="mode-label">Drag</span>
+        <button id="mode-roam" title="Random Roam">🎲</button>
+        <span class="mode-label">Roam</span>
+        <button id="mode-prey" class="active" title="Prey Mode (Cat Optimized)">🐁</button>
+        <span class="mode-label">Prey</span>
+        
+        <div style="height: 20px; border-top: 2px solid #ddd; margin: 10px 0;"></div>
+        
+        <button id="sprite-ball" class="active" title="Ball Sprite">🔴</button>
+        <span class="mode-label">Ball</span>
+        <button id="sprite-spider" title="Spider Sprite">🕷️</button>
+        <span class="mode-label">Spider</span>
+        <button id="sprite-mouse" title="Mouse Sprite">🐭</button>
+        <span class="mode-label">Mouse</span>
+    </div>
+    
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="effects-layer"></div>
+    </div>
+    
+    <div id="controls">
+        <button id="fullscreen-btn">🖥️ Fullscreen</button>
+        <button id="sound-toggle">🔊 Sound ON</button>
+    </div>
+
+    <script src="js/effects.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/ball.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
