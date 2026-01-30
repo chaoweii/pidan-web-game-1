@@ -68,6 +68,13 @@ class Ball {
     
     changeSprite(type) {
         this.spriteType = type;
+        this.changeColor();
+    }
+    
+    changeColor() {
+        // Get a new random color from the cat-optimized palette
+        this.color = Ball.getRandomColor();
+        // Recreate sprite with new color
         this.createSprite();
     }
 

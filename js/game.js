@@ -10,11 +10,61 @@ class Game {
         this.lastTime = 0;
         this.mode = 'drag'; // 'drag' or 'roam'
         
+        this.detectiOS();
         this.setupCanvas();
         this.setupControls();
         this.setupModes();
         this.setupInput();
         this.init();
+    }
+
+    detectiOS() {
+        // Detect iOS/iPadOS
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        if (isIOS) {
+            document.body.classList.add('ios');
+            
+            // Show install prompt if not in standalone mode
+            const isStandalone = window.navigator.standalone || 
+                                window.matchMedia('(display-mode: standalone)').matches;
+            
+            if (!isStandalone) {
+                const prompt = document.getElementById('ios-install-prompt');
+                // Show prompt after 3 seconds
+                setTimeout(() => {
+                    prompt.classList.add('show');
+                }, 3000);
+                
+                // Dismiss button
+                document.getElementById('dismiss-prompt').addEventListener('click', () => {
+                    prompt.classList.remove('show');
+                    localStorage.setItem('ios-prompt-dismissed', 'true');
+                });
+                
+                // Don't show again if previously dismissed
+                if (localStorage.getItem('ios-prompt-dismissed')) {
+                    prompt.classList.remove('show');
+                }
+            }
+        }
+    }
+
+    showToast(emoji, label) {
+        const toast = document.getElementById('mode-toast');
+        toast.innerHTML = `${emoji}${label ? '<span class="toast-label">' + label + '</span>' : ''}`;
+        toast.classList.remove('show');
+        
+        // Trigger reflow to restart animation
+        void toast.offsetWidth;
+        
+        toast.classList.add('show');
+        
+        // Remove class after animation
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 1000);
     }
 
     setupCanvas() {
@@ -63,7 +113,9 @@ class Game {
                 this.ball.stopped = false;
                 this.ball.preyMode = false;
                 this.ball.roamMode = false;
+                this.ball.changeColor();
             }
+            this.showToast('✋', 'Drag Mode');
         });
         
         roamBtn.addEventListener('click', () => {
@@ -73,7 +125,9 @@ class Game {
             preyBtn.classList.remove('active');
             if (this.ball) {
                 this.ball.enableRandomRoam();
+                this.ball.changeColor();
             }
+            this.showToast('🎲', 'Roam Mode');
         });
         
         preyBtn.addEventListener('click', () => {
@@ -83,7 +137,9 @@ class Game {
             roamBtn.classList.remove('active');
             if (this.ball) {
                 this.ball.enablePreyMode();
+                this.ball.changeColor();
             }
+            this.showToast('🐁', 'Prey Mode');
         });
         
         // Sprite selection
@@ -98,6 +154,7 @@ class Game {
             if (this.ball) {
                 this.ball.changeSprite('ball');
             }
+            this.showToast('🔴', 'Ball');
         });
         
         spiderBtn.addEventListener('click', () => {
@@ -107,6 +164,7 @@ class Game {
             if (this.ball) {
                 this.ball.changeSprite('spider');
             }
+            this.showToast('🕷️', 'Spider');
         });
         
         mouseBtn.addEventListener('click', () => {
@@ -116,6 +174,7 @@ class Game {
             if (this.ball) {
                 this.ball.changeSprite('mouse');
             }
+            this.showToast('🐭', 'Mouse');
         });
     }
 

@@ -10,6 +10,9 @@ body {
     background: #FFFEF0; /* Light cream/white for high contrast */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     touch-action: none;
+    /* Use dynamic viewport height and safe areas */
+    height: 100dvh;
+    width: 100vw;
 }
 
 #game-container {
@@ -17,8 +20,13 @@ body {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     cursor: pointer;
+    /* Account for safe areas on notched devices */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
 }
 
 #game-canvas {
@@ -39,41 +47,45 @@ body {
     pointer-events: none;
 }
 
-/* Sidebar */
+/* Sidebar - Base styles */
 #sidebar {
     position: fixed;
     left: 0;
     top: 0;
     width: 60px;
-    height: 100vh;
+    height: 100dvh;
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 0;
-    gap: 20px;
+    padding-top: max(20px, env(safe-area-inset-top));
+    padding-left: env(safe-area-inset-left);
+    gap: 15px;
     z-index: 100;
     transition: width 0.3s;
-}
-
-#sidebar.expanded {
-    width: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 #sidebar button {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     background: rgba(100, 150, 255, 0.9);
     border: none;
     border-radius: 50%;
     font-size: 20px;
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s, background 0.2s, box-shadow 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 #sidebar button:hover {
@@ -88,22 +100,32 @@ body {
 #sidebar button.active {
     background: rgba(50, 200, 100, 0.9);
     box-shadow: 0 0 10px rgba(50, 200, 100, 0.5);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(50, 200, 100, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(50, 200, 100, 0.8);
+    }
 }
 
 #sidebar .mode-label {
     display: none;
-    font-size: 12px;
+    font-size: 11px;
     color: #333;
     margin-top: -10px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-#sidebar.expanded .mode-label {
-    display: block;
-}
-
+/* Controls at bottom */
 #controls {
     position: fixed;
     bottom: 20px;
+    bottom: max(20px, env(safe-area-inset-bottom));
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -119,6 +141,7 @@ body {
 
 #controls button {
     padding: 10px 20px;
+    min-height: 44px;
     background: rgba(255, 255, 255, 0.9);
     border: none;
     border-radius: 25px;
@@ -137,9 +160,201 @@ body {
     transform: scale(0.95);
 }
 
+/* Toast notification for mode/sprite changes */
+#mode-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    font-size: 60px;
+    text-align: center;
+    z-index: 200;
+    pointer-events: none;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+#mode-toast.show {
+    animation: toastFadeIn 1s ease-out forwards;
+}
+
+@keyframes toastFadeIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    20% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+}
+
+#mode-toast .toast-label {
+    display: block;
+    font-size: 14px;
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+/* iOS/iPadOS Install prompt */
+#ios-install-prompt {
+    position: fixed;
+    bottom: 80px;
+    bottom: max(80px, calc(env(safe-area-inset-bottom) + 60px));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(50, 150, 255, 0.95);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-size: 13px;
+    z-index: 150;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    max-width: 90%;
+}
+
+#ios-install-prompt.show {
+    display: flex;
+}
+
+#ios-install-prompt button {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+/* Phone portrait - Compact layout */
+@media (max-width: 480px) {
+    #sidebar {
+        width: 60px;
+        gap: 12px;
+        padding: 15px 0;
+    }
+    
+    #sidebar button {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+    
+    #controls button {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+/* Phone landscape - More compact */
+@media (max-width: 834px) and (orientation: landscape) {
+    #sidebar {
+        width: 60px;
+        gap: 10px;
+        padding: 10px 0;
+    }
+    
+    #sidebar button {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    #controls {
+        bottom: 10px;
+        gap: 8px;
+    }
+    
+    #controls button {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-height: 36px;
+    }
+}
+
+/* Tablet (iPad) portrait - Wider sidebar with labels */
+@media (min-width: 481px) and (max-width: 1024px) and (orientation: portrait) {
+    #sidebar {
+        width: 80px;
+        gap: 18px;
+    }
+    
+    #sidebar button {
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+    }
+    
+    #sidebar .mode-label {
+        display: block;
+    }
+}
+
+/* Tablet (iPad) landscape - Expanded sidebar */
+@media (min-width: 835px) and (max-width: 1366px) and (orientation: landscape) {
+    #sidebar {
+        width: 100px;
+        gap: 20px;
+    }
+    
+    #sidebar button {
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+    }
+    
+    #sidebar .mode-label {
+        display: block;
+        font-size: 12px;
+    }
+}
+
+/* Desktop and large tablets */
+@media (min-width: 1367px) {
+    #sidebar {
+        width: 120px;
+    }
+    
+    #sidebar button {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
+    
+    #sidebar .mode-label {
+        display: block;
+        font-size: 13px;
+    }
+}
+
+/* Hide fullscreen button on iOS/iPadOS (doesn't work) */
+.ios #fullscreen-btn {
+    display: none;
+}
+
 /* Fullscreen mode */
 #game-container:fullscreen {
-    background: #FFFEF0; /* Light cream/white for high contrast */
+    background: #FFFEF0;
 }
 
 #game-container:-webkit-full-screen {
