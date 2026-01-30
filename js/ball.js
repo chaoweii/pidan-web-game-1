@@ -78,7 +78,7 @@ class Ball {
         this.createSprite();
     }
 
-    update(canvas) {
+    update(canvas, sidebarWidth = 60) {
         // Don't update if dragging or stopped
         if (this.isDragging || (this.stopped && !this.roamMode && !this.preyMode) || this.roamStopped) {
             return null;
@@ -161,14 +161,14 @@ class Ball {
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
             
-            if (this.x - this.radius <= 0) {
-                this.x = this.radius;
+            if (this.x - this.radius <= sidebarWidth) {
+                this.x = sidebarWidth + this.radius;
                 // Bounce toward center with larger steps
                 const angle = Math.atan2(centerY - this.y, centerX - this.x);
                 const speed = 5 + Math.random() * 4; // Increased from 4-7 to 5-9
                 this.vx = Math.cos(angle) * speed;
                 this.vy = Math.sin(angle) * speed;
-                collision = { x: 0, y: this.y, side: 'left' };
+                collision = { x: sidebarWidth, y: this.y, side: 'left' };
             } else if (this.x + this.radius >= canvas.width) {
                 this.x = canvas.width - this.radius;
                 // Bounce toward center with larger steps
@@ -198,10 +198,10 @@ class Ball {
             }
         } else {
             // Drag mode: normal bounce physics
-            if (this.x - this.radius <= 0) {
-                this.x = this.radius;
+            if (this.x - this.radius <= sidebarWidth) {
+                this.x = sidebarWidth + this.radius;
                 this.vx = Math.abs(this.vx) * this.bounce;
-                collision = { x: 0, y: this.y, side: 'left' };
+                collision = { x: sidebarWidth, y: this.y, side: 'left' };
             } else if (this.x + this.radius >= canvas.width) {
                 this.x = canvas.width - this.radius;
                 this.vx = -Math.abs(this.vx) * this.bounce;

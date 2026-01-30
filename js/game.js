@@ -294,6 +294,26 @@ class Game {
     }
 
 
+    getSidebarWidth() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const isLandscape = width > height;
+        
+        // Match CSS media query breakpoints
+        if (width <= 480) {
+            return 60; // Phone portrait
+        } else if (width <= 834 && isLandscape) {
+            return 60; // Phone landscape
+        } else if (width >= 481 && width <= 1024 && !isLandscape) {
+            return 80; // iPad portrait
+        } else if (width >= 835 && width <= 1366 && isLandscape) {
+            return 100; // iPad landscape
+        } else if (width >= 1367) {
+            return 120; // Desktop
+        }
+        return 60; // Default fallback
+    }
+
     init() {
         // Create initial ball
         const centerX = this.canvas.width / 2;
@@ -321,8 +341,11 @@ class Game {
         // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Calculate sidebar width based on screen size
+        const sidebarWidth = this.getSidebarWidth();
+
         // Update ball
-        const collision = this.ball.update(this.canvas);
+        const collision = this.ball.update(this.canvas, sidebarWidth);
         
         // Handle collision effects
         if (collision) {
