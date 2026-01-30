@@ -162,11 +162,6 @@ This game abandons predictable physics in favor of biological realism:
 
 Built for Pidan (皮蛋) with love. 
 
-## 📄 License
-
-MIT License - Feel free to use and modify for your own cat!
-
----
 
 **Enjoy watching your cat play! 🎉**
 
